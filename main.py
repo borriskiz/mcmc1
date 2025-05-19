@@ -42,8 +42,8 @@ def run_mcmc(method: str) -> MCMC:
         raise ValueError(f"Unknown method: {method}")
 
     # Инициализация MCMC
-    mcmc = MCMC(kernel, num_samples=NUM_SAMPLES, warmup_steps=WARMUP_STEPS)
-    return mcmc
+    mcmc_out = MCMC(kernel, num_samples=NUM_SAMPLES, warmup_steps=WARMUP_STEPS)
+    return mcmc_out
 
 
 print("Выберите метод сэмплинга:")
