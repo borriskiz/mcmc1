@@ -55,19 +55,17 @@ print("Выберите метод сэмплинга:")
 print("1. NUTS (No-U-Turn Sampler)")
 print("2. HMC (Hamiltonian Monte Carlo)")
 
+# Запрос на выбор метода сэмплинга от пользователя
+chosen_number = input("Введите номер метода (1 или 2): ").strip()
 
-
-while True:
-    chosen_number = input("Введите номер метода (1 или 2): ").strip()
-    if chosen_number == "1":
-        chosen_method = "NUTS"
-        break
-    elif chosen_number == "2":
-        chosen_method = "HMC"
-        break
-    else:
-        print("Неверный выбор! Пожалуйста, выберите 1 для NUTS или 2 для HMC.")
-
+# Преобразуем введенное значение в строку с именем метода
+if chosen_number == "1":
+    chosen_method = "NUTS"
+elif chosen_number == "2":
+    chosen_method = "HMC"
+else:
+    print("Неверный выбор! Пожалуйста, выберите 1 для NUTS или 2 для HMC.")
+    exit()  # Завершаем выполнение программы, если введен неверный номер
 
 # Запуск MCMC с выбранным методом
 mcmc = run_mcmc(chosen_method)
@@ -88,6 +86,17 @@ for i in range(DIM):
     axes[i].set_title(f'Posterior distribution of beta_{i + 1}')
     axes[i].set_xlabel(f'beta_{i + 1}')
     axes[i].set_ylabel('Frequency')
+
+plt.tight_layout()
+
+# Построение графиков цепочек
+fig, axes = plt.subplots(1, DIM, figsize=(12, 4))
+
+for i in range(DIM):
+    axes[i].plot(beta_samples[:, i].detach().numpy(), alpha=0.7)
+    axes[i].set_title(f'Chain for beta_{i + 1}')
+    axes[i].set_xlabel('Iteration')
+    axes[i].set_ylabel(f'beta_{i + 1}')
 
 plt.tight_layout()
 plt.show()
