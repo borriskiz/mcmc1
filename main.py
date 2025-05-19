@@ -4,23 +4,20 @@ import pyro.distributions as dist
 import torch
 from pyro.infer import MCMC, NUTS, HMC
 
-NUM_SAMPLES: int = 500  # Количество выборок
-WARMUP_STEPS: int = 300  # Шаги разогрева
-DIM: int = 3  # Размерность данных (количество признаков)
-BATCH_SIZE: int = 2000  # Количество данных (примеров)
+NUM_SAMPLES: int = 500
+WARMUP_STEPS: int = 300
+DIM: int = 3
+BATCH_SIZE: int = 2000
 
 Tensor = torch.Tensor  # Тип для тензоров
 
-# Истинные коэффициенты
 true_coefficients: Tensor = torch.tensor([1., 2., 3.])
 
 # Генерация случайных данных (2000 примеров, 3 признака)
 data: Tensor = torch.randn(BATCH_SIZE, DIM)
 
-# Размерность данных (для модели)
 dim: int = true_coefficients.size(0)
 
-# Метки
 labels: Tensor = dist.Bernoulli(logits=(true_coefficients * data).sum(-1)).sample()
 
 
@@ -34,7 +31,6 @@ def model(_data: Tensor) -> Tensor:
     return y
 
 
-# Функция для выбора метода сэмплинга
 def run_mcmc(method: str) -> MCMC:
     if method == "NUTS":
         # Инициализация NUTS ядра с адаптацией шага
@@ -50,31 +46,27 @@ def run_mcmc(method: str) -> MCMC:
     return mcmc
 
 
-# Вывод списка доступных методов с номером
 print("Выберите метод сэмплинга:")
 print("1. NUTS (No-U-Turn Sampler)")
 print("2. HMC (Hamiltonian Monte Carlo)")
 
-# Запрос на выбор метода сэмплинга от пользователя
-chosen_number = input("Введите номер метода (1 или 2): ").strip()
+while True:
+    chosen_number = input("Введите номер метода (1 или 2): ").strip()
+    # Преобразуем введенное значение в строку с именем метода
+    if chosen_number == "1":
+        chosen_method = "NUTS"
+        break
+    elif chosen_number == "2":
+        chosen_method = "HMC"
+        break
+    else:
+        print("Неверный выбор! Пожалуйста, выберите 1 для NUTS или 2 для HMC.")
 
-# Преобразуем введенное значение в строку с именем метода
-if chosen_number == "1":
-    chosen_method = "NUTS"
-elif chosen_number == "2":
-    chosen_method = "HMC"
-else:
-    print("Неверный выбор! Пожалуйста, выберите 1 для NUTS или 2 для HMC.")
-    exit()  # Завершаем выполнение программы, если введен неверный номер
-
-# Запуск MCMC с выбранным методом
 mcmc = run_mcmc(chosen_method)
 mcmc.run(data)
 
-# Получение выборок для 'beta'
 beta_samples: Tensor = mcmc.get_samples()['beta']
 
-# Среднее по выборкам для 'beta'
 mean_beta: Tensor = beta_samples.mean(0)
 print("Estimated coefficients:", mean_beta)
 
