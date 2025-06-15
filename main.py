@@ -24,12 +24,11 @@ def function(x: Tensor) -> Tensor:
 
 
 # Генерация измерений m с ошибкой
-data: Tensor = torch.randn(BATCH_SIZE, DIM)  # случайные параметры
 m: Tensor = function(true_parameters) + torch.randn(BATCH_SIZE) * 0.1  # Добавляем шум
 
 
 # Определение модели
-def model(_data: Tensor, _m: Tensor) -> Tensor:
+def model(_m: Tensor) -> Tensor:
     # Начальные предположения для параметров x
     x_mean: Tensor = torch.zeros(DIM)  # Среднее для параметров
     x: Tensor = pyro.sample('x', dist.Normal(x_mean, torch.ones(DIM)))  # Параметры x с нормальным распределением
@@ -76,7 +75,7 @@ while True:
 
 # Запуск MCMC
 mcmc = run_mcmc(chosen_method)
-mcmc.run(data, m)
+mcmc.run(m)
 
 # Извлечение сэмплов параметров x
 x_samples: Tensor = mcmc.get_samples()['x']
